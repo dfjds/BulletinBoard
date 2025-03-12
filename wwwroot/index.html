@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JLA Bulletin Board</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        let commentsData = {}; // Object to store comments per post
+
+        async function loadMessages() {
+            let expandableSections = document.querySelectorAll('.expandable-section');
+            let anyOpen = Array.from(expandableSections).some(section => section.style.display === "block");
+
+            if (anyOpen) {
+                return; // Don't refresh if comments are open
+            }
+
+            let response = await fetch('/messages');
+            let messages = await response.json();
+            let board = document.getElementById('board');
+
+            board.innerHTML = messages.map((msg, index) => 
+                `<div>
+                    <button onclick="toggleExpand(${index}, '${msg.id}')">
+                        <strong>${msg.name}</strong> (${msg.timestamp}): ${msg.message}
+                    </button>
+                    <div id="expandable-${index}" class="expandable-section">
+                        <div id="comments-${index}"></div>
+                        <input type="text" id="comment-input-${index}" placeholder="Add a comment">
+                        <button onclick="submitComment(${index}, '${msg.id}')">Submit Comment</button>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        async function toggleExpand(index, postId) {
+            let section = document.getElementById(`expandable-${index}`);
+            if (section.style.display === "none" || section.style.display === "") {
+                section.style.display = "block";
+                await loadComments(index, postId); // Fetch comments when opening
+            } else {
+                section.style.display = "none";
+            }
+        }
+
+        async function loadComments(index, postId) {
+            let response = await fetch(`/comments?postId=${postId}`);
+            let comments = await response.json();
+            commentsData[postId] = comments; // Store comments locally
+
+            let commentsDiv = document.getElementById(`comments-${index}`);
+            commentsDiv.innerHTML = comments.map(comment => 
+                `<p><strong>${comment.user}</strong>: ${comment.text}</p>`
+            ).join('');
+        }
+
+        async function submitComment(index, postId) {
+            let input = document.getElementById(`comment-input-${index}`);
+            let commentText = input.value.trim();
+            if (!commentText) return;
+
+            let response = await fetch('/add-comment', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ postId: postId, text: commentText, user: "Anonymous" })
+            });
+
+            if (response.ok) {
+                input.value = ""; // Clear input
+                await loadComments(index, postId); // Refresh comments after submission
+            } else {
+                alert("Failed to submit comment");
+            }
+        }
+
+        setInterval(loadMessages, 2000);
+        window.onload = function() {
+            checkLogin();
+            loadMessages();
+        };
+
+        async function checkLogin() {
+            let response = await fetch("/messages");
+            if (response.status === 401) {
+                alert("You must be logged in!");
+                window.location.href = "login.html";
+            }
+        }
+    </script>
+    
+    <style>
+        .expandable-section {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid black;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body> 
+    <header>
+        <h1>JLA Bulletin Board</h1>
+    </header>
+    
+    <section class="content">
+        <form action="/post" method="post">
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="text" name="message" placeholder="Your Message" required>
+            <button type="submit">Post</button>
+        </form>
+        <h2>Messages</h2>
+        <div id="board"></div>
+    </section>
+</body>
+</html>

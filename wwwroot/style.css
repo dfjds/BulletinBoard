@@ -1,0 +1,81 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e7e7e7;
+}
+
+header {
+    background-color: #fa754c;
+    padding: 10px;
+    color: #29264c;
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+section.content {
+    padding: 20px;
+    margin: 20px;
+    background-color: #ffff;
+    border-radius: 15px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.YourMessage {
+    padding: 15px;
+    margin-bottom: 10px;
+    border: none;
+    background-color: #dcdcdc;
+    text-align: left;
+    font-size: 15px;
+    border-radius: 8px;
+}
+
+.YourMessage:focus {
+    border-color: #ED6942;
+    background-color: #ffff;
+}
+
+button {
+    cursor: pointer;
+    padding: 20px;
+    background-color: #ffff;
+    border-radius: 15px;
+    margin-bottom: 7px;
+    border: none;
+    background-color: #f0eded;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #e3e1e1;
+}
+
+.Post {
+    padding: 10px;
+    background-color: #4353A4;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px;
+    color: #dcdcdc;
+}
+
+.Post:hover {
+    background-color: #566bd5;
+}
+
+h2 {
+    padding: 10px;
+    margin-top: 10px;
+    color: #242051;
+}
